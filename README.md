@@ -320,8 +320,6 @@ TAVILY_API_KEY=[YOUR_TAVILY_API_KEY]  # Get your API key at: https://app.tavily.
 # JINA_API_KEY=[YOUR_JINA_API_KEY]  # Alternative to Tavily for retrieve tool
 ```
 
-For optional features configuration (Redis, SearXNG, etc.), see [CONFIGURATION.md](./docs/CONFIGURATION.md)
-
 ### 4. Run app locally
 
 ### Using pnpm - Node Modules
@@ -382,34 +380,143 @@ docker compose -f docker-compose.dev.yaml down
 
 ## 🌐 Deploy
 
-Host your own live version of Morphic with Vercel, Cloudflare Pages, or Docker.
+Host your own live version of Morphius on various platforms:
 
-### Vercel
+### Vercel Deployment
 
+The easiest way to deploy Morphius is with Vercel:
+
+1. Click the deploy button below:
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fmiurla%2Fmorphic&env=OPENAI_API_KEY,TAVILY_API_KEY,UPSTASH_REDIS_REST_URL,UPSTASH_REDIS_REST_TOKEN)
 
-### Docker Prebuilt Image
+2. Configure your environment variables in the Vercel dashboard
+3. Your app will be automatically deployed and updated with each push to the main branch
 
-Prebuilt Docker images are available on GitHub Container Registry:
-
+Manual Deployment Steps:
 ```bash
-docker pull ghcr.io/miurla/morphic:latest
+# Install Vercel CLI
+pnpm install -g vercel
+
+# Login to Vercel
+vercel login
+
+# Deploy
+vercel deploy
 ```
 
-You can use it with docker-compose:
+### Netlify Deployment
 
-```yaml
-services:
-  morphic:
-    image: ghcr.io/miurla/morphic:latest
-    env_file: .env.local
-    ports:
-      - '3000:3000'
-    volumes:
-      - ./models.json:/app/public/config/models.json # Optional: Override default model configuration
+1. Connect your GitHub repository to Netlify
+2. Configure the build settings:
+   - Build command: `pnpm build`
+   - Publish directory: `.next`
+   - Node version: 18.x
+3. Add your environment variables in the Netlify dashboard
+4. Deploy!
+
+Manual Deployment Steps:
+```bash
+# Install Netlify CLI
+pnpm install -g netlify-cli
+
+# Login to Netlify
+netlify login
+
+# Initialize and deploy
+netlify init
+netlify deploy
 ```
 
-The default model configuration is located at `public/config/models.json`. For Docker deployment, you can create `models.json` alongside `.env.local` to override the default configuration.
+### Kinsta Application Hosting
+
+Kinsta supports deployment via Docker. Here's how to deploy:
+
+1. Ensure you have a Dockerfile in your repository (already included)
+2. Log in to your Kinsta dashboard
+3. Create a new application
+4. Connect your GitHub repository
+5. Configure the build settings:
+   - Build environment: Dockerfile
+   - Dockerfile path: `Dockerfile`
+   - Context: `.`
+6. Add your environment variables in the Kinsta dashboard
+7. Deploy!
+
+The included Dockerfile is optimized for production:
+```dockerfile
+FROM node:18-alpine AS base
+
+# Install dependencies only when needed
+FROM base AS deps
+RUN apk add --no-cache libc6-compat
+WORKDIR /app
+
+# Install pnpm
+RUN cwd=$(pwd) && \
+    npm install -g pnpm && \
+    pnpm setup && \
+    mkdir -p /root/.local/share/pnpm && \
+    mkdir -p /root/.pnpm-store
+
+# Install dependencies
+COPY package.json pnpm-lock.yaml* ./
+RUN pnpm install --frozen-lockfile
+
+# Rebuild the source code only when needed
+FROM base AS builder
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+
+# Next.js collects completely anonymous telemetry data about general usage.
+# Learn more here: https://nextjs.org/telemetry
+# Uncomment the following line in case you want to disable telemetry during the build.
+# ENV NEXT_TELEMETRY_DISABLED 1
+
+RUN pnpm build
+
+# Production image, copy all the files and run next
+FROM base AS runner
+WORKDIR /app
+
+ENV NODE_ENV production
+# Uncomment the following line in case you want to disable telemetry during runtime.
+# ENV NEXT_TELEMETRY_DISABLED 1
+
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nextjs
+
+COPY --from=builder /app/public ./public
+
+# Automatically leverage output traces to reduce image size
+# https://nextjs.org/docs/advanced-features/output-file-tracing
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+
+USER nextjs
+
+EXPOSE 3000
+
+ENV PORT 3000
+
+CMD ["node", "server.js"]
+```
+
+### Browser Search Engine Integration
+
+After deploying to any platform, users can set up Morphius as their browser search engine:
+
+1. Open browser settings
+2. Navigate to search engine settings
+3. Add new search engine:
+   - Name: Morphius
+   - Keyword: morphius
+   - URL: `https://[YOUR-DEPLOYED-DOMAIN]/search?q=%s`
+
+Replace [YOUR-DEPLOYED-DOMAIN] with:
+- Vercel: `your-app.vercel.app`
+- Netlify: `your-app.netlify.app`
+- Kinsta: `your-app.kinsta.app`
 
 ## 🔎 Search Engine
 
@@ -451,6 +558,7 @@ This will allow you to use Morphic as your default search engine in the browser.
   - qwen2.5
   - deepseek-r1
 - Groq
+  - meta-llama/llama-4-scout-17b-16e-instruct
   - deepseek-r1-distill-llama-70b
 - DeepSeek
   - DeepSeek V3
@@ -475,19 +583,7 @@ For more information about choosing between AI SDK UI and RSC, see the [official
 
 ## 📦 Open Source vs Cloud Offering
 
-Morphic is open source software available under the Apache-2.0 license.
+Morphius is open source software available under the Apache-2.0 license.
 
-To maintain sustainable development and provide cloud-ready features, we offer a hosted version of Morphic alongside our open-source offering. The cloud solution makes Morphic accessible to non-technical users and provides additional features while keeping the core functionality open and available for developers.
 
-For our cloud service, visit [morphic.sh](https://morphic.sh).
 
-## 👥 Contributing
-
-We welcome contributions to Morphic! Whether it's bug reports, feature requests, or pull requests, all contributions are appreciated.
-
-Please see our [Contributing Guide](CONTRIBUTING.md) for details on:
-
-- How to submit issues
-- How to submit pull requests
-- Commit message conventions
-- Development setup
