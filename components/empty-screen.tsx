@@ -3,20 +3,20 @@ import { ArrowRight } from 'lucide-react'
 
 const exampleMessages = [
   {
-    heading: 'What is DeepSeek R1?',
-    message: 'What is DeepSeek R1?'
+    heading: 'Tell me about Anthropic',
+    message: 'Tell me about Anthropic'
   },
   {
-    heading: 'Why is Nvidia growing rapidly?',
-    message: 'Why is Nvidia growing rapidly?'
+    heading: 'What is a Groq LPU?',
+    message: 'What is a Groq LPU?'
   },
   {
-    heading: 'Tesla vs Rivian',
-    message: 'Tesla vs Rivian'
+    heading: 'What is Gemma 3?',
+    message: 'What is Gemma 3?'
   },
   {
-    heading: 'Summary: https://arxiv.org/pdf/2501.05707',
-    message: 'Summary: https://arxiv.org/pdf/2501.05707'
+    heading: 'Summary: https://arxiv.org/abs/2305.04388',
+    message: 'Summary: https://arxiv.org/abs/2305.04388'
   }
 ]
 export function EmptyScreen({
