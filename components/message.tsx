@@ -48,6 +48,8 @@ export function BotMessage({
         remarkPlugins={[remarkGfm]}
         components={{
           code({ node, inline, className, children, ...props }) {
+            let processedChildren = children;
+            
             if (children && children.length) {
               if (children[0] == '▍') {
                 return (
@@ -55,7 +57,7 @@ export function BotMessage({
                 )
               }
 
-              children[0] = (children[0] as string).replace('`▍`', '▍')
+              processedChildren = [(children[0] as string).replace('`▍`', '▍'), ...children.slice(1)];
             }
 
             const match = /language-(\w+)/.exec(className || '')
@@ -63,7 +65,7 @@ export function BotMessage({
             if (inline) {
               return (
                 <code className={className} {...props}>
-                  {children}
+                  {processedChildren}
                 </code>
               )
             }
@@ -72,7 +74,7 @@ export function BotMessage({
               <CodeBlock
                 key={Math.random()}
                 language={(match && match[1]) || ''}
-                value={String(children).replace(/\n$/, '')}
+                value={String(processedChildren).replace(/\n$/, '')}
                 {...props}
               />
             )
