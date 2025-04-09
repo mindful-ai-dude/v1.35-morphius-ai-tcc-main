@@ -12,6 +12,17 @@ import {
   ,
 
 
+
+
+
+
+
+
+
+
+
+
+
   wrapLanguageModel
 } from 'ai'
 import { createOllama } from 'ollama-ai-provider'
@@ -53,7 +64,7 @@ export const registry = createProviderRegistry({
   }),
   openrouter: createOpenAI({
     apiKey: process.env.OPENROUTER_API_KEY,
-    baseURL: 'https://openrouter.ai/api/v1',
+    baseURL: 'https://openrouter.ai/api/v1'
   }),
   xai
 })
@@ -90,8 +101,8 @@ export function getModel(model: string): LanguageModelV1 { // Return type specif
   if (!baseModel) {
       // Handle case where the model ID is not found in the registry
       console.error(`Model with ID "${model}" not found in registry. Falling back to default.`);
-      // Fallback to a default model, e.g., OpenAI's mini model
-      return registry.languageModel('openai:gpt-4o-mini'); // Ensure this default exists
+      // Fallback to Gemini 2.0 Flash as it supports native tool calls and multimodal capabilities
+      return registry.languageModel('google:gemini-2.0-flash');
   }
 
 
@@ -171,7 +182,9 @@ export function getToolCallModel(model?: string): LanguageModelV1 { // Return ty
   
   // If it's a multimodal model that already handles attachments well, retain it
   if (modelName && multimodalModels.includes(modelName)) {
-    return getSafeToolCallModel(`${provider}:${modelName}`);
+    // Cast the constructed model ID to RegisteredModelId since we know it's valid
+    const modelId = `${provider}:${modelName}` as RegisteredModelId;
+    return getSafeToolCallModel(modelId);
   }
 
   switch (provider) {
@@ -189,10 +202,10 @@ export function getToolCallModel(model?: string): LanguageModelV1 { // Return ty
       // Gemini Flash is preferred for both PDFs and images
       return getSafeToolCallModel('google:gemini-2.0-flash');
     case 'openrouter':
-      return getSafeToolCallModel('openai:gpt-4o-mini'); // Stick to OpenAI fallback
+      return getSafeToolCallModel('google:gemini-2.0-flash'); // Use Gemini as fallback
     default:
-      // Default fallback for OpenAI, Anthropic, Azure, XAI, etc.
-      return getSafeToolCallModel('openai:gpt-4o-mini');
+      // Default fallback to Gemini 2.0 Flash for all providers
+      return getSafeToolCallModel('google:gemini-2.0-flash');
   }
 }
 
@@ -205,8 +218,8 @@ export function isToolCallSupported(model?: string): boolean {
     if (!provider || !modelName) return false; // Invalid format
 
     // Explicitly list providers/models known *not* to support (or reliably support) tool calling
-    if (provider === 'ollama' || provider === 'google') {
-        // Google models currently require manual tool handling in this setup
+    if (provider === 'ollama') {
+        // Only Ollama requires manual tool handling in this setup
         return false;
     }
 

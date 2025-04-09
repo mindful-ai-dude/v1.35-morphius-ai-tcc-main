@@ -26,9 +26,10 @@ export function parseToolCallXml<T>(
   const parametersXml = getTagContent(toolCallContent, 'parameters')
   if (!parametersXml || !schema) return { tool }
 
+  // Extract all parameter values using tag names from schema
+  const rawParameters: Record<string, string> = {}
+
   try {
-    // Extract all parameter values using tag names from schema
-    const rawParameters: Record<string, string> = {}
     if (schema instanceof z.ZodObject) {
       Object.keys(schema.shape).forEach(key => {
         const value = getTagContent(parametersXml, key)

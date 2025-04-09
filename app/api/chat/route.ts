@@ -74,6 +74,7 @@ export async function POST(req: Request) {
         'gemini-2.0-flash-thinking-exp-01-21',
         'gemini-2.5-pro-exp-03-25',
         'claude-3-5-sonnet-latest',
+        'claude-3-7-sonnet-latest',
         'grok-2-vision-1212'
       ].includes(modelId)
     }

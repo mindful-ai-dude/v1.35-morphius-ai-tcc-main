@@ -54,7 +54,7 @@
       "provider": "Google Generative AI",
       "providerId": "google",
       "enabled": true,
-      "toolCallType": "manual"
+      "toolCallType": "native"
     },
     {
       "id": "gemini-2.0-flash-thinking-exp-01-21",
@@ -62,8 +62,7 @@
       "provider": "Google Generative AI",
       "providerId": "google",
       "enabled": true,
-      "toolCallType": "manual",
-      "toolCallModel": "gemini-2.0-flash"
+      "toolCallType": "native"
     },
     {
       "id": "gemini-2.5-pro-exp-03-25",
@@ -71,8 +70,7 @@
       "provider": "Google Generative AI",
       "providerId": "google",
       "enabled": true,
-      "toolCallType": "manual",
-      "toolCallModel": "gemini-2.0-flash"
+      "toolCallType": "native"
     },
     {
       "id": "meta-llama/llama-4-maverick",
@@ -107,6 +105,24 @@
       "enabled": true,
       "toolCallType": "manual",
       "toolCallModel": "meta-llama/llama-4-scout-17b-16e-instruct"
+    },
+    {
+      "id": "nvidia/llama-3.1-nemotron-ultra-253b-v1:free",
+      "name": "NVIDIA: Nemotron Ultra 253B",
+      "provider": "OpenAI Compatible",
+      "providerId": "openai-compatible",
+      "enabled": true,
+      "toolCallType": "native",
+      "baseURL": "https://openrouter.ai/api/v1"
+    },
+    {
+      "id": "mistralai/mixtral-8x7b-instruct",
+      "name": "Mixtral 8x7B Instruct",
+      "provider": "OpenAI Compatible",
+      "providerId": "openai-compatible",
+      "enabled": true,
+      "toolCallType": "native",
+      "baseURL": "https://openrouter.ai/api/v1"
     },
     {
       "id": "deepseek-r1",
@@ -151,12 +167,13 @@
       "toolCallType": "native"
     },
     {
-      "id": "<OPENAI_COMPATIBLE_MODEL>",
-      "name": "<OPENAI_COMPATIBLE_MODEL>",
+      "id": "openrouter/quasar-alpha",
+      "name": "Quasar Alpha",
       "provider": "OpenAI Compatible",
       "providerId": "openai-compatible",
       "enabled": true,
-      "toolCallType": "native"
+      "toolCallType": "native",
+      "baseURL": "https://openrouter.ai/api/v1"
     }
   ]
 }
