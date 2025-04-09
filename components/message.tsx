@@ -48,7 +48,7 @@ export function BotMessage({
         remarkPlugins={[remarkGfm]}
         components={{
           code({ node, inline, className, children, ...props }) {
-            if (children.length) {
+            if (children && children.length) {
               if (children[0] == '▍') {
                 return (
                   <span className="mt-1 cursor-default animate-pulse">▍</span>
