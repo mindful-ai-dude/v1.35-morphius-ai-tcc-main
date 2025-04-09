@@ -1,0 +1,48 @@
+# Docker Compose configuration for the morphius-stack development environment
+
+name: morphius-stack
+services:
+  morphic:
+    image: ghcr.io/${GITHUB_REPOSITORY:-your-username/morphius}:latest
+    command: bun start -H 0.0.0.0
+    build:
+      context: .
+      dockerfile: Dockerfile
+      cache_from:
+        - morphic:builder
+        - morphic:latest
+    env_file: .env.local # Load environment variables
+    ports:
+      - '3000:3000' # Maps port 3000 on the host to port 3000 in the container.
+    depends_on:
+      redis:
+        condition: service_healthy
+      searxng:
+        condition: service_started
+
+  redis:
+    image: redis:alpine
+    ports:
+      - '6379:6379'
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  searxng:
+    image: searxng/searxng
+    ports:
+      - '${SEARXNG_PORT:-8080}:8080'
+    env_file: .env.local # can remove if you want to use env variables or in settings.yml
+    volumes:
+      - ./searxng-limiter.toml:/etc/searxng/limiter.toml
+      - ./searxng-settings.yml:/etc/searxng/settings.yml
+      - searxng_data:/data
+
+volumes:
+  redis_data:
+  searxng_data:
