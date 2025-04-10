@@ -8,21 +8,7 @@ import { xai } from '@ai-sdk/xai'
 import {
   createProviderRegistry,
   extractReasoningMiddleware,
-  LanguageModelV1 // Import the base type
-  ,
-
-
-
-
-
-
-
-
-
-
-
-
-
+  LanguageModelV1, // Import the base type
   wrapLanguageModel
 } from 'ai'
 import { createOllama } from 'ollama-ai-provider'
@@ -160,7 +146,7 @@ function getSafeToolCallModel(preferredModelId: RegisteredModelId): LanguageMode
     } catch (error) {
         console.warn(`Failed to get preferred tool call model ${preferredModelId}. Falling back. Error: ${error}`);
         // Fallback to a known reliable model like gpt-4o-mini
-        return getModel('openai:gpt-4o-mini');
+        return getModel('google:gemini-2.0-flash');
     }
 }
 
